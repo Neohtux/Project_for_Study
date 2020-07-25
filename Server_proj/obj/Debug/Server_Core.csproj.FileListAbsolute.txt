@@ -1,0 +1,7 @@
+D:\jun\csharp\ServerProject_for_Study\Server_proj\bin\Debug\Server_proj.exe.config
+D:\jun\csharp\ServerProject_for_Study\Server_proj\bin\Debug\Server_proj.exe
+D:\jun\csharp\ServerProject_for_Study\Server_proj\bin\Debug\Server_proj.pdb
+D:\jun\csharp\ServerProject_for_Study\Server_proj\obj\Debug\Server_Core.csprojAssemblyReference.cache
+D:\jun\csharp\ServerProject_for_Study\Server_proj\obj\Debug\Server_Core.csproj.CoreCompileInputs.cache
+D:\jun\csharp\ServerProject_for_Study\Server_proj\obj\Debug\Server_proj.exe
+D:\jun\csharp\ServerProject_for_Study\Server_proj\obj\Debug\Server_proj.pdb
