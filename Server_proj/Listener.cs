@@ -11,37 +11,31 @@ namespace Server_proj
     class Listener
     {
         public Listener() { }
-        string my_host = Dns.GetHostName();
-
-        //MAC주소와 IP주소, hostname을 받아올 수 있는 hostEntry 생성
-        IPHostEntry hostEntry;
-        //네트워크 끝점을 AddressList[1] IP주소와, 포트번호8887로 나타낸다.
-        IPEndPoint endpoint;
+ 
         //Socket 생성 (TCP로 설정, TCP시 소켓타입은 스트림)
         Socket listen_socket;
-        //소켓 바인드
-
-
-        public void Init(SocketAsyncEventArgs Async_arg)
+        Session _session = new Session();
+        SocketAsyncEventArgs args;
+        public void Init(IPEndPoint iPEnd)
         {
-            hostEntry = Dns.GetHostEntry(my_host);
-            endpoint = new IPEndPoint(hostEntry.AddressList[1], 8887);
-            listen_socket = new Socket(endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            listen_socket.Bind(endpoint);
+            listen_socket = new Socket(iPEnd.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            listen_socket.Bind(iPEnd);
+
+            //backlog : 최대대기수
             listen_socket.Listen(10);
-            
+
             //Accept();
-            Start_Accept(Async_arg);
+            Start_Accept(args);
         }
+        //클라이언트로 부터 커넥션 요청에 의한 수용 작업을 시작
         public void Start_Accept(SocketAsyncEventArgs asyncEventArgs)
         {
-     
-            if (asyncEventArgs == null)
+            if (asyncEventArgs == null) //개체 생성이 안된경우.
             {
                 asyncEventArgs = new SocketAsyncEventArgs();
                 asyncEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(OnAcceptCompleted);
             }
-            else asyncEventArgs.AcceptSocket = null;
+            else asyncEventArgs.AcceptSocket = null; //사용할 소켓 비우기
             
             bool pending = listen_socket.AcceptAsync(asyncEventArgs);
 
@@ -50,27 +44,18 @@ namespace Server_proj
                 OnAcceptCompleted(null, asyncEventArgs);
             }
         }
-        public void OnAcceptCompleted(object obj, SocketAsyncEventArgs args)
+        //멀티 스레드 작동 부분(danger zone!)
+        void OnAcceptCompleted(object obj, SocketAsyncEventArgs args)
         {
             if (args.LastOperation == SocketAsyncOperation.Accept)
             {
-                Socket client_socket = args.AcceptSocket;
-                ProcessReceive(args,client_socket);
-                ProcessSend(args,client_socket);
+                 _session.Start_Session(args.AcceptSocket);
+                ProcessSend(args, args.AcceptSocket);
             }
             Start_Accept(args);
 
         }
        
-        private void ProcessReceive(SocketAsyncEventArgs args,Socket client_Socket)
-        {
-            byte[] recv_buff = new byte[1024];
-
-            int client_data_length = client_Socket.Receive(recv_buff);
-            string client_data = Encoding.UTF8.GetString(recv_buff, 0, client_data_length);
-            Console.WriteLine($"[From Client ] : {client_data}");
-        }
-
         private void ProcessSend(SocketAsyncEventArgs args, Socket client_socket)
         {
             byte[] send_message = Encoding.UTF8.GetBytes("Welcome to MMORPG Server");
