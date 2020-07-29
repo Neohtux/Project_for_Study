@@ -12,12 +12,13 @@ namespace Server_proj
     {
         public Listener() { }
  
-        //Socket 생성 (TCP로 설정, TCP시 소켓타입은 스트림)
         Socket listen_socket;
         Session _session = new Session();
         SocketAsyncEventArgs args;
+
         public void Init(IPEndPoint iPEnd)
         {
+            //Socket 생성 (TCP로 설정, TCP시 소켓타입은 스트림)
             listen_socket = new Socket(iPEnd.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             listen_socket.Bind(iPEnd);
 
@@ -50,7 +51,8 @@ namespace Server_proj
             if (args.LastOperation == SocketAsyncOperation.Accept)
             {
                  _session.Start_Session(args.AcceptSocket);
-                ProcessSend(args, args.AcceptSocket);
+                
+                //ProcessSend(args, args.AcceptSocket);
             }
             Start_Accept(args);
 
