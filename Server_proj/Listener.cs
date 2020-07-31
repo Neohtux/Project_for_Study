@@ -13,7 +13,7 @@ namespace Server_proj
         public Listener() { }
  
         Socket listen_socket;
-        Session _session = new Session();
+       
         SocketAsyncEventArgs args;
 
         public void Init(IPEndPoint iPEnd)
@@ -50,18 +50,14 @@ namespace Server_proj
         {
             if (args.LastOperation == SocketAsyncOperation.Accept)
             {
-                 _session.Start_Session(args.AcceptSocket);
-                
-                //ProcessSend(args, args.AcceptSocket);
+                //클라이언트가 접속하면 게임 세션을 만들어주고 세션을 시작한다.
+                GameSession _session = new GameSession();
+                _session.Start_Session(args.AcceptSocket);
+                _session.OnConnected(args.AcceptSocket.RemoteEndPoint);
+
             }
             Start_Accept(args);
 
-        }
-       
-        private void ProcessSend(SocketAsyncEventArgs args, Socket client_socket)
-        {
-            byte[] send_message = Encoding.UTF8.GetBytes("Welcome to MMORPG Server");
-            client_socket.Send(send_message);
         }
     }
 }
