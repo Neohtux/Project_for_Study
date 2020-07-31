@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -8,88 +9,103 @@ using System.Threading.Tasks;
 
 namespace Server_proj
 {
-    class Session
+    abstract class Session
     {
-        Socket client_socket;
-        SocketAsyncEventArgs sendArgs = new SocketAsyncEventArgs();
+        Socket client_socket; //접속한 클라이언트 소켓.
+        SocketAsyncEventArgs sendArgs; //Send용 비동기 이벤트 
+        SocketAsyncEventArgs recvArgs; //Receive용 비동기 이벤트
         Queue<byte[]> sendMessage_queue = new Queue<byte[]>();
-
+       
         bool Is_send_wait = false;
-        object _lock = new object();
+        // Send 버퍼에 동시접근을 제어 하기위해 락을 사용.
+        object _lock = new object(); 
+
+        public abstract void OnConnected(EndPoint endPoint);
+        public abstract void OnReceive(byte[] buffer, int ByteTransferred);
+        public abstract void OnDisconnect(EndPoint endPoint);
+        public abstract void OnSend(byte[] buffer);
 
         public void Start_Session(Socket socket)
         {
             client_socket = socket;
-            SocketAsyncEventArgs recvArgs = new SocketAsyncEventArgs();
+            sendArgs = new SocketAsyncEventArgs();
+            recvArgs = new SocketAsyncEventArgs();
+
+            //콜백 이벤트 연결. 
             sendArgs.Completed += new EventHandler<SocketAsyncEventArgs>(OnSendCompleted);
             recvArgs.Completed += new EventHandler<SocketAsyncEventArgs>(OnRecvCompleted);
+            recvArgs.SetBuffer(new byte[1024], 0, 1024);
 
-            byte[] send_buff = new byte[1024];
-            send_buff = Encoding.UTF8.GetBytes("Welcome to Server !");
-            recvArgs.SetBuffer(new byte[1024], 0,1024);
-            Start_Receive(recvArgs);
-            Send(send_buff);
+            byte[] buffer = Encoding.UTF8.GetBytes("Welcome to Server !");
+            Receive();
+            Send(buffer);
         }
-        void Start_Receive(SocketAsyncEventArgs args)
+        
+        #region Send/Receive
+        void Receive()
         {
             //리시브 비동기 호출
-            bool pending = client_socket.ReceiveAsync(args);
+            bool pending = client_socket.ReceiveAsync(recvArgs);
 
-            if(pending ==false)
+            if (pending == false)
             {
-                OnRecvCompleted(null, args);
-            } 
-            
+                OnRecvCompleted(null, recvArgs);
+            }
         }
         void Send(byte[] Buffer)
         {
-            lock (_lock)
+            lock (_lock) //버퍼에는 순서대로 접근하되 내용은 한번에 담아서 보낸다.
             {
                 sendArgs.SetBuffer(Buffer, 0, Buffer.Length);
                 sendMessage_queue.Enqueue(Buffer);
 
                 if (Is_send_wait == false)
-                    Start_Send(sendArgs);
+                    Start_Send();
             }
         }
        
-        void Start_Send(SocketAsyncEventArgs args)
+        void Start_Send()
         {
             Is_send_wait = true;
             byte[] buff = sendMessage_queue.Dequeue();
-            args.SetBuffer(buff, 0, buff.Length);
-
-            bool pending = client_socket.SendAsync(args);
+            sendArgs.SetBuffer(buff, 0, buff.Length);
+            
+            //Send 워커스레드 호출. 비동기 샌드
+            bool pending = client_socket.SendAsync(sendArgs);
 
             if (pending == false)
             {
-                OnSendCompleted(null, args);
+                OnSendCompleted(null, sendArgs);
             }
         }
         public void Disconnect()
         {
+            OnDisconnect(client_socket.RemoteEndPoint);
             client_socket.Shutdown(SocketShutdown.Both);
             client_socket.Close();
         }
-        #region Send/Receive
+        // Send 워커 스레드 (Danger zone)
         void OnSendCompleted(object obj, SocketAsyncEventArgs args)
         {
-            if(args.BytesTransferred > 0 && args.SocketError == SocketError.Success)
+            if (args.BytesTransferred > 0 && args.SocketError == SocketError.Success)
             {
+                OnSend(args.Buffer);
                 Is_send_wait = false;
             }
+            else Disconnect();
          
         }
-        //멀티 스레드 작동 부분(danger zone!)
+        // Recv 워커 스레드 (Danger zone)
         void OnRecvCompleted(object obj,SocketAsyncEventArgs args)
         {
             if (args.BytesTransferred > 0 && args.SocketError == SocketError.Success)
             {
-                string client_data = Encoding.UTF8.GetString(args.Buffer, args.Offset, args.BytesTransferred);
-                Console.WriteLine($"[From client] : {client_data}");
-                Start_Receive(args); //Receive 예약.
+                OnReceive(args.Buffer, args.BytesTransferred);
+                Receive(); //Receive 예약.
+
             }
             else Disconnect();
+
         }
         #endregion
     }
