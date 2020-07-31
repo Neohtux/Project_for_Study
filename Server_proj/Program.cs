@@ -8,7 +8,29 @@ using System.Threading.Tasks;
 
 namespace Server_proj
 {
-  
+    class GameSession : Session
+    {
+        public override void OnConnected(EndPoint endPoint)
+        {
+            Console.WriteLine($"OnConnected : {endPoint}");
+        }
+        public override void OnDisconnect(EndPoint endPoint)
+        {
+            Console.WriteLine($"OnDisconnected : {endPoint}");
+        }
+
+        public override void OnReceive(byte[] buffer,int ByteTransferred)
+        {
+            string client_data = Encoding.UTF8.GetString(buffer, 0, ByteTransferred);
+            Console.WriteLine($"[From client] : {client_data}");
+        }
+
+        public override void OnSend(byte[] buffer)
+        {
+            Console.WriteLine($"Transferred bytes : {buffer.Length}");
+        }
+    }
+
     class Program : Listener
     { 
         static void Main(string[] args)
@@ -25,7 +47,7 @@ namespace Server_proj
             Listener listener = new Listener();
             listener.Init(endpoint);
 
-            while (true) { };
+            while (true) { }; //메인스레드 위치 부분
         }
     }
 }
