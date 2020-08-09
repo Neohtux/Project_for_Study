@@ -1,0 +1,11 @@
+C:\My_proj\Project_for_Study\DummyClient\bin\Debug\DummyClient.exe.config
+C:\My_proj\Project_for_Study\DummyClient\bin\Debug\DummyClient.exe
+C:\My_proj\Project_for_Study\DummyClient\bin\Debug\DummyClient.pdb
+C:\My_proj\Project_for_Study\DummyClient\bin\Debug\Server_proj.dll
+C:\My_proj\Project_for_Study\DummyClient\bin\Debug\Server_proj.pdb
+C:\My_proj\Project_for_Study\DummyClient\bin\Debug\Server_proj.dll.config
+C:\My_proj\Project_for_Study\DummyClient\bin\Debug\Server_proj.exe.config
+C:\My_proj\Project_for_Study\DummyClient\obj\Debug\DummyClient.csprojAssemblyReference.cache
+C:\My_proj\Project_for_Study\DummyClient\obj\Debug\DummyClient.csproj.CopyComplete
+C:\My_proj\Project_for_Study\DummyClient\obj\Debug\DummyClient.exe
+C:\My_proj\Project_for_Study\DummyClient\obj\Debug\DummyClient.pdb
