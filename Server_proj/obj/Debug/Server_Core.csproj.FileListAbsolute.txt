@@ -5,3 +5,9 @@ D:\jun\csharp\ServerProject_for_Study\Server_proj\obj\Debug\Server_Core.csprojAs
 D:\jun\csharp\ServerProject_for_Study\Server_proj\obj\Debug\Server_Core.csproj.CoreCompileInputs.cache
 D:\jun\csharp\ServerProject_for_Study\Server_proj\obj\Debug\Server_proj.exe
 D:\jun\csharp\ServerProject_for_Study\Server_proj\obj\Debug\Server_proj.pdb
+C:\My_proj\Project_for_Study\Server_proj\obj\Debug\Server_Core.csprojAssemblyReference.cache
+C:\My_proj\Project_for_Study\Server_proj\bin\Debug\Server_proj.dll.config
+C:\My_proj\Project_for_Study\Server_proj\bin\Debug\Server_proj.dll
+C:\My_proj\Project_for_Study\Server_proj\bin\Debug\Server_proj.pdb
+C:\My_proj\Project_for_Study\Server_proj\obj\Debug\Server_proj.dll
+C:\My_proj\Project_for_Study\Server_proj\obj\Debug\Server_proj.pdb

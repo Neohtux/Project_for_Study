@@ -1,7 +1,0 @@
-D:\jun\csharp\ServerProject_for_Study\DummyClient\bin\Debug\DummyClient.exe.config
-D:\jun\csharp\ServerProject_for_Study\DummyClient\bin\Debug\DummyClient.exe
-D:\jun\csharp\ServerProject_for_Study\DummyClient\bin\Debug\DummyClient.pdb
-D:\jun\csharp\ServerProject_for_Study\DummyClient\obj\Debug\DummyClient.csprojAssemblyReference.cache
-D:\jun\csharp\ServerProject_for_Study\DummyClient\obj\Debug\DummyClient.csproj.CoreCompileInputs.cache
-D:\jun\csharp\ServerProject_for_Study\DummyClient\obj\Debug\DummyClient.exe
-D:\jun\csharp\ServerProject_for_Study\DummyClient\obj\Debug\DummyClient.pdb
