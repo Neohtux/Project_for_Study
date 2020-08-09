@@ -7,9 +7,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Server_proj
+namespace Server_Core
 {
-    abstract class Session
+    public abstract class Session
     {
         Socket client_socket; //접속한 클라이언트 소켓.
         SocketAsyncEventArgs sendArgs; //Send용 비동기 이벤트 
@@ -36,13 +36,13 @@ namespace Server_proj
             recvArgs.Completed += new EventHandler<SocketAsyncEventArgs>(OnRecvCompleted);
             recvArgs.SetBuffer(new byte[1024], 0, 1024);
 
-            byte[] buffer = Encoding.UTF8.GetBytes("Welcome to Server !");
+           // byte[] buffer = Encoding.UTF8.GetBytes("Welcome to heehehheehehehe !");
             Receive();
-            Send(buffer);
+           // Send(buffer);
         }
         
         #region Send/Receive
-        void Receive()
+       public void Receive()
         {
             //리시브 비동기 호출
             bool pending = client_socket.ReceiveAsync(recvArgs);
@@ -52,7 +52,7 @@ namespace Server_proj
                 OnRecvCompleted(null, recvArgs);
             }
         }
-        void Send(byte[] Buffer)
+       public void Send(byte[] Buffer)
         {
             lock (_lock) //버퍼에는 순서대로 접근하되 내용은 한번에 담아서 보낸다.
             {

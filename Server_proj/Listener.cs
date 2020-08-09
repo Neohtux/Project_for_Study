@@ -6,22 +6,22 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Server_proj
+namespace Server_Core
 {
-    class Listener
+    public class Listener
     {
         public Listener() { }
  
         Socket listen_socket;
-       
+        Session _session;
         SocketAsyncEventArgs args;
 
-        public void Init(IPEndPoint iPEnd)
+        public void Init(IPEndPoint iPEnd, Session session)
         {
             //Socket 생성 (TCP로 설정, TCP시 소켓타입은 스트림)
             listen_socket = new Socket(iPEnd.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             listen_socket.Bind(iPEnd);
-
+            _session = session;
             //backlog : 최대대기수
             listen_socket.Listen(10);
 
@@ -51,7 +51,7 @@ namespace Server_proj
             if (args.LastOperation == SocketAsyncOperation.Accept)
             {
                 //클라이언트가 접속하면 게임 세션을 만들어주고 세션을 시작한다.
-                GameSession _session = new GameSession();
+               // GameSession _session = new GameSession();
                 _session.Start_Session(args.AcceptSocket);
                 _session.OnConnected(args.AcceptSocket.RemoteEndPoint);
 

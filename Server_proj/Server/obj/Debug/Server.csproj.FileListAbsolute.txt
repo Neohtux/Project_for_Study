@@ -1,0 +1,11 @@
+C:\My_proj\Project_for_Study\Server_proj\Server\bin\Debug\Server.exe.config
+C:\My_proj\Project_for_Study\Server_proj\Server\bin\Debug\Server.exe
+C:\My_proj\Project_for_Study\Server_proj\Server\bin\Debug\Server.pdb
+C:\My_proj\Project_for_Study\Server_proj\Server\bin\Debug\Server_proj.dll
+C:\My_proj\Project_for_Study\Server_proj\Server\bin\Debug\Server_proj.pdb
+C:\My_proj\Project_for_Study\Server_proj\Server\bin\Debug\Server_proj.dll.config
+C:\My_proj\Project_for_Study\Server_proj\Server\bin\Debug\Server_proj.exe.config
+C:\My_proj\Project_for_Study\Server_proj\Server\obj\Debug\Server.csprojAssemblyReference.cache
+C:\My_proj\Project_for_Study\Server_proj\Server\obj\Debug\Server.csproj.CopyComplete
+C:\My_proj\Project_for_Study\Server_proj\Server\obj\Debug\Server.exe
+C:\My_proj\Project_for_Study\Server_proj\Server\obj\Debug\Server.pdb

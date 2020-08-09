@@ -1,17 +1,21 @@
-﻿using System;
+﻿using Server_Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using Server_Core;
+
 namespace Server
 {
     class GameSession : Session
     {
         public override void OnConnected(EndPoint endPoint)
         {
+            byte[] buffer = Encoding.UTF8.GetBytes("Welcome to Server !");
+            Send(buffer);
             Console.WriteLine($"OnConnected : {endPoint}");
+            
         }
         public override void OnDisconnect(EndPoint endPoint)
         {
@@ -43,7 +47,8 @@ namespace Server
             endpoint = new IPEndPoint(hostEntry.AddressList[1], 8887);
 
             Listener listener = new Listener();
-            listener.Init(endpoint);
+            GameSession session = new GameSession();
+            listener.Init(endpoint,session);
 
             while (true) { };
         }
