@@ -18,10 +18,13 @@ namespace Server_Core
        
         bool Is_send_wait = false;
         // Send 버퍼에 동시접근을 제어 하기위해 락을 사용.
-        object _lock = new object(); 
+        object _lock = new object();
+
+
+        RecvBuffer _recvBuffer = new RecvBuffer(1024);
 
         public abstract void OnConnected(EndPoint endPoint);
-        public abstract void OnReceive(byte[] buffer, int ByteTransferred);
+        public abstract int OnReceive(ArraySegment<byte> buffer, int ByteTransferred);
         public abstract void OnDisconnect(EndPoint endPoint);
         public abstract void OnSend(byte[] buffer);
 
@@ -34,19 +37,19 @@ namespace Server_Core
             //콜백 이벤트 연결. 
             sendArgs.Completed += new EventHandler<SocketAsyncEventArgs>(OnSendCompleted);
             recvArgs.Completed += new EventHandler<SocketAsyncEventArgs>(OnRecvCompleted);
-            recvArgs.SetBuffer(new byte[1024], 0, 1024);
-
-           // byte[] buffer = Encoding.UTF8.GetBytes("Welcome to heehehheehehehe !");
+          
             Receive();
-           // Send(buffer);
         }
         
         #region Send/Receive
        public void Receive()
         {
+            _recvBuffer.Clean();
+            ArraySegment<byte> _segment = _recvBuffer.FreeSegment;
+            recvArgs.SetBuffer(_segment.Array, _segment.Offset, _segment.Count);
+
             //리시브 비동기 호출
             bool pending = client_socket.ReceiveAsync(recvArgs);
-
             if (pending == false)
             {
                 OnRecvCompleted(null, recvArgs);
@@ -100,7 +103,25 @@ namespace Server_Core
         {
             if (args.BytesTransferred > 0 && args.SocketError == SocketError.Success)
             {
-                OnReceive(args.Buffer, args.BytesTransferred);
+                //_writePos 커서 이동
+                _recvBuffer.OnWrite(args.BytesTransferred);
+
+                // 컨텐츠 쪽으로 데이터를 넘겨주고 얼마나 처리했는지 받는다.
+                // OnReceive(args.Buffer, args.BytesTransferred);
+                int process_len = OnReceive(_recvBuffer.DataSegment, args.BytesTransferred);
+
+                if(process_len <0 || _recvBuffer.DataSize < process_len)
+                {
+                    Disconnect();
+                    return;
+                }
+
+                //_ReadPos 커서 이동
+                if(_recvBuffer.OnRead(process_len)==false)
+                {
+                    Disconnect();
+                    return;
+                }
                 Receive(); //Receive 예약.
 
             }
