@@ -9,8 +9,13 @@ namespace DummyClient
     {
         public override void OnConnected(EndPoint endPoint)
         {
-            byte[] buffer = Encoding.UTF8.GetBytes("Hi I'm Client !");
-            Send(buffer);
+            ArraySegment<byte> buffer = SendBufferHelper.Open(4096);
+            string str = "Hi I'm Client";
+            byte[] buffer1 = Encoding.UTF8.GetBytes(str);
+            Array.Copy(buffer1, 0, buffer.Array, buffer.Offset, buffer1.Length);
+
+            ArraySegment<byte> send_buffer = SendBufferHelper.Close(buffer1.Length);
+            Send(send_buffer);
             Console.WriteLine($"OnConnected : {endPoint}");
         }
         public override void OnDisconnect(EndPoint endPoint)
@@ -18,10 +23,12 @@ namespace DummyClient
             Console.WriteLine($"OnDisconnected : {endPoint}");
         }
 
-        public override void OnReceive(byte[] buffer, int ByteTransferred)
+        public override int OnReceive(ArraySegment<byte> buffer, int ByteTransferred)
         {
-            string client_data = Encoding.UTF8.GetString(buffer, 0, ByteTransferred);
+            string client_data = Encoding.UTF8.GetString(buffer.Array, 0, ByteTransferred);
             Console.WriteLine($"[From Server] : {client_data}");
+
+            return buffer.Count;
         }
 
         public override void OnSend(byte[] buffer)
