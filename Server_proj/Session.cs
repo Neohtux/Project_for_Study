@@ -14,13 +14,13 @@ namespace Server_Core
         Socket client_socket; //접속한 클라이언트 소켓.
         SocketAsyncEventArgs sendArgs; //Send용 비동기 이벤트 
         SocketAsyncEventArgs recvArgs; //Receive용 비동기 이벤트
-        Queue<byte[]> sendMessage_queue = new Queue<byte[]>();
+        Queue<ArraySegment<byte>> sendMessage_queue = new Queue<ArraySegment<byte>>();
        
         bool Is_send_wait = false;
         // Send 버퍼에 동시접근을 제어 하기위해 락을 사용.
         object _lock = new object();
 
-
+        //Receive 버퍼 
         RecvBuffer _recvBuffer = new RecvBuffer(1024);
 
         public abstract void OnConnected(EndPoint endPoint);
@@ -55,11 +55,10 @@ namespace Server_Core
                 OnRecvCompleted(null, recvArgs);
             }
         }
-       public void Send(byte[] Buffer)
+       public void Send(ArraySegment<byte> Buffer)
         {
             lock (_lock) //버퍼에는 순서대로 접근하되 내용은 한번에 담아서 보낸다.
             {
-                sendArgs.SetBuffer(Buffer, 0, Buffer.Length);
                 sendMessage_queue.Enqueue(Buffer);
 
                 if (Is_send_wait == false)
@@ -70,9 +69,8 @@ namespace Server_Core
         void Start_Send()
         {
             Is_send_wait = true;
-            byte[] buff = sendMessage_queue.Dequeue();
-            sendArgs.SetBuffer(buff, 0, buff.Length);
-            
+            ArraySegment<byte> buff = sendMessage_queue.Dequeue();
+            sendArgs.SetBuffer(buff.Array, 0, buff.Count);
             //Send 워커스레드 호출. 비동기 샌드
             bool pending = client_socket.SendAsync(sendArgs);
 
@@ -107,7 +105,7 @@ namespace Server_Core
                 _recvBuffer.OnWrite(args.BytesTransferred);
 
                 // 컨텐츠 쪽으로 데이터를 넘겨주고 얼마나 처리했는지 받는다.
-                // OnReceive(args.Buffer, args.BytesTransferred);
+               
                 int process_len = OnReceive(_recvBuffer.DataSegment, args.BytesTransferred);
 
                 if(process_len <0 || _recvBuffer.DataSize < process_len)
