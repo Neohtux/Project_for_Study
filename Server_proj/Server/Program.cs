@@ -1,38 +1,10 @@
 ﻿using Server_Core;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace Server
 {
-    class GameSession : Session
-    {
-        public override void OnConnected(EndPoint endPoint)
-        {
-            byte[] buffer = Encoding.UTF8.GetBytes("Welcome to Server !");
-            Send(buffer);
-            Console.WriteLine($"OnConnected : {endPoint}");
-            
-        }
-        public override void OnDisconnect(EndPoint endPoint)
-        {
-            Console.WriteLine($"OnDisconnected : {endPoint}");
-        }
-
-        public override void OnReceive(byte[] buffer, int ByteTransferred)
-        {
-            string client_data = Encoding.UTF8.GetString(buffer, 0, ByteTransferred);
-            Console.WriteLine($"[From client] : {client_data}");
-        }
-
-        public override void OnSend(byte[] buffer)
-        {
-            Console.WriteLine($"Transferred bytes : {buffer.Length}");
-        }
-    }
     class Program
     {
         static void Main(string[] args)
@@ -47,9 +19,9 @@ namespace Server
             endpoint = new IPEndPoint(hostEntry.AddressList[1], 8887);
 
             Listener listener = new Listener();
-            GameSession session = new GameSession();
+            ClientSession session = new ClientSession();
             listener.Init(endpoint,session);
-
+            
             while (true) { };
         }
     }
