@@ -13,18 +13,19 @@ namespace Server_Core
         public Listener() { }
  
         Socket listen_socket;
-        Session _session;
-        SocketAsyncEventArgs args;
-
-        public void Init(IPEndPoint iPEnd, Session session)
+        Func<Session> _sessionFactory;
+        
+        public void Init(IPEndPoint iPEnd, Func<Session> sessionFactory)
         {
             //Socket 생성 (TCP로 설정, TCP시 소켓타입은 스트림)
             listen_socket = new Socket(iPEnd.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            listen_socket.Bind(iPEnd);
-            _session = session;
-            //backlog : 최대대기수
-            listen_socket.Listen(10);
 
+            _sessionFactory += sessionFactory;
+            listen_socket.Bind(iPEnd);
+
+            //backlog : 최대대기수
+            listen_socket.Listen(11);
+            SocketAsyncEventArgs args = null;
             //Accept();
             Start_Accept(args);
         }
@@ -50,8 +51,7 @@ namespace Server_Core
         {
             if (args.LastOperation == SocketAsyncOperation.Accept)
             {
-                //클라이언트가 접속하면 게임 세션을 만들어주고 세션을 시작한다.
-               // GameSession _session = new GameSession();
+                Session _session = _sessionFactory.Invoke();
                 _session.Start_Session(args.AcceptSocket);
                 _session.OnConnected(args.AcceptSocket.RemoteEndPoint);
 
