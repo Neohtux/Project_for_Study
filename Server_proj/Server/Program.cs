@@ -19,9 +19,8 @@ namespace Server
             endpoint = new IPEndPoint(hostEntry.AddressList[1], 8887);
 
             Listener listener = new Listener();
-            ClientSession session = new ClientSession();
-            listener.Init(endpoint,session);
-            
+            listener.Init(endpoint, ()=> { return new ClientSession(); } );
+
             while (true) { };
         }
     }
