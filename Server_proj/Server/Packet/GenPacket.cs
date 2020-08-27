@@ -61,8 +61,9 @@ public class PlayerPacket : Packet
 
         //String Message
         ToBytes(s.Array, s.Offset + _size, message.Length * 2);
+        _size += sizeof(short);
         ushort nameLen = (ushort)Encoding.Unicode.GetBytes(this.message, 0, this.message.Length, s.Array, s.Offset + _size);
-        _size += sizeof(ushort);
+        _size += sizeof(long);
         _size += nameLen;
         return SendBufferHelper.Close(_size);
     }
