@@ -4,11 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Server
 {
-    class ClientSession : PacketSession
+    public class ClientSession : PacketSession
     {
         public override void OnConnected(EndPoint endPoint)
         {
@@ -21,21 +22,23 @@ namespace Server
 
         public override void OnRecvPacket(ArraySegment<byte> buffer)
         {
+            if (buffer.Count == 0) return;
             PlayerPacket packet = new PlayerPacket();
-            Console.WriteLine("되냐?");
-
             packet.Des(buffer);
+            packet.message += "  " +SessionID+"번째 그루트";
 
-            Console.WriteLine($"RecevPacket_Size : {packet.p_size},  packet_ID : {packet.p_id}");
-            Console.WriteLine($"Message : {packet.message}");
-            //
-           // Console.WriteLine($"Player ID : {packet.player_id}");
-            //Console.WriteLine($"Player Message : {packet.message}");
+            
+            Console.WriteLine($"[From Client message] : {packet.message}");
+
         }
 
+     
         public override void OnSend(int length)
         {
             Console.WriteLine($"Transferred bytes : {length}");
         }
+
+       
     }
+    
 }
