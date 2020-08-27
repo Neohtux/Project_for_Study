@@ -17,18 +17,17 @@ namespace DummyClient
             IPHostEntry hostEntry = Dns.GetHostEntry(my_host);
             //네트워크 끝점을 AddressList[1] IP주소와, 포트번호8887로 나타낸다.
             IPEndPoint endpoint = new IPEndPoint(hostEntry.AddressList[1], 8887);
-            SessionManager Instance = new SessionManager();
 
-
-            //connector.Connect(endpoint, () => { return new ServerSession(); });
             Connector connector = new Connector();
-            
-            ServerSession session = new ServerSession();
-            connector.Connect(endpoint, ()=> { return new ServerSession(); });
-            
-            
+             
+            connector.Connect(endpoint, ()=> { return SessionManager.Instance.Generate(); });
+        
 
-            while (true) {  }
+            while (true)
+            {
+                Thread.Sleep(250);
+                 SessionManager.Instance.SendForEach();
+            }
 
 
         }
