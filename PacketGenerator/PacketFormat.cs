@@ -32,6 +32,8 @@ using System.Threading;";
 public class {0} : Packet
 {{
     public ulong player_id;
+    public string message;
+    
     private static unsafe void ToBytes(byte[] array, int offset, ulong value)
     {{
         fixed (byte* ptr = &array[offset])
@@ -45,16 +47,25 @@ public class {0} : Packet
 
 
         {3}
+        ulong messageLen = BitConverter.ToUInt16(buffer.Array, buffer.Offset + size);
+        size += sizeof(short);
+        this.message = Encoding.Unicode.GetString(buffer.Array, buffer.Offset + size, (int)messageLen);
 
     }}
     //Serializer
     public override ArraySegment<byte> Ser()
     {{
-        ArraySegment<byte> s = SendBufferHelper.Open(4096);
+        ArraySegment<byte> s = SendBufferHelper.Open(128);
 
         ushort _size = 0;
         {2}
         
+        //String Message
+        ToBytes(s.Array, s.Offset + _size, message.Length * 2);
+        _size += sizeof(short);
+        ushort nameLen = (ushort)Encoding.Unicode.GetBytes(this.message, 0, this.message.Length, s.Array, s.Offset + _size);
+        _size += sizeof(long);
+        _size += nameLen; 
         return SendBufferHelper.Close(_size);
     }}
 }}
@@ -76,5 +87,11 @@ public class {0} : Packet
         public static string serFormat =
 @"  ToBytes(s.Array, s.Offset+_size, {0});
             _size += sizeof({1});";
+
+        public static string messageFormat =
+"@ToBytes(s.Array,s.Offset+_size,{0});";
+             
+
+
     }
 }
